@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asesmen Fisika: Pengantar Teknologi Digital</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #f8fafc;
+            --text: #1e293b;
+            --border: #cbd5e1;
+            --success: #16a34a;
+            --success-bg: #dcfce7;
+            --danger: #dc2626;
+            --danger-bg: #fee2e2;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f1f5f9;
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        header h1 {
+            margin: 0 0 8px 0;
+            color: var(--primary-dark);
+            font-size: 1.8rem;
+        }
+
+        header p {
+            margin: 0;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .student-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            background: var(--secondary);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+        }
+
+        .form-group input, .form-group select {
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .question-card {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #fff;
+            transition: transform 0.2s;
+        }
+
+        .question-header {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .q-num {
+            background: var(--primary);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            height: fit-content;
+        }
+
+        .options {
+            display: flex;
+            gap: 15px;
+        }
+
+        .option-label {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .option-label:hover {
+            background-color: #eff6ff;
+            border-color: var(--primary);
+        }
+
+        input[type="radio"] {
+            transform: scale(1.2);
+            accent-color: var(--primary);
+        }
+
+        .explanation {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+
+        .explanation.correct {
+            display: block;
+            background-color: var(--success-bg);
+            border-left: 4px solid var(--success);
+            color: #14532d;
+        }
+
+        .explanation.incorrect {
+            display: block;
+            background-color: var(--danger-bg);
+            border-left: 4px solid var(--danger);
+            color: #7f1d1d;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-submit:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        #result-box {
+            display: none;
+            text-align: center;
+            background: #eff6ff;
+            border: 2px solid var(--primary);
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .score-display {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-dark);
+            margin: 10px 0;
+        }
+
+        .status-msg {
+            font-weight: 600;
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        @media (max-width: 600px) {
+            .student-info {
+                grid-template-columns: 1fr;
+            }
+            .options {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Asesmen Sumatif Fisika SMA</h1>
+        <p>Materi: Pengantar Teknologi Digital (30 Soal Benar / Salah)</p>
+    </header>
+
+    <div id="result-box">
+        <h2>Hasil Asesmen Anda</h2>
+        <p id="student-summary"></p>
+        <div class="score-display" id="final-score">0 / 100</div>
+        <p id="correct-count"></p>
+        <div id="email-status" class="status-msg">Mengirim hasil ke email guru...</div>
+        <p style="font-size: 0.9rem; color: #475569; margin-top: 15px;">Silakan gulir ke bawah untuk melihat kunci jawaban dan pembahasan setiap soal.</p>
+    </div>
+
+    <form id="quiz-form">
+        <div class="student-info">
+            <div class="form-group">
+                <label for="nama">Nama Lengkap Siswa *</label>
+                <input type="text" id="nama" name="nama" placeholder="Masukkan nama lengkap..." required>
+            </div>
+            <div class="form-group">
+                <label for="kelas">Kelas *</label>
+                <input type="text" id="kelas" name="kelas" placeholder="Contoh: XII IPA 1" required>
+            </div>
+        </div>
+
+        <div id="questions-container"></div>
+
+        <button type="submit" class="btn-submit" id="submit-btn">Kirim Jawaban & Lihat Pembahasan</button>
+    </form>
+</div>
+
+<script>
+    // =========================================================================
+    // MASUKKAN TAUTAN ENDPOINT FORMSPREE ANDA DI BAWAH INI:
+    const FORMSPREE_URL = "GANTI_DENGAN_ENDPOINT_FORMSPREE_ANDA";
+    // =========================================================================
+
+    const quizData = [
+        {
+            q: "Teknologi digital merupakan sistem yang menggunakan sinyal kontinu dengan amplitudo yang berubah-ubah secara halus terhadap waktu.",
+            ans: false,
+            exp: "Pernyataan tersebut adalah definisi dari teknologi/sinyal ANALOG. Teknologi digital menggunakan sinyal diskrit yang diwakili oleh dua keadaan diskrit (biner: 0 dan 1)."
+        },
+        {
+            q: "Sistem bilangan biner yang menjadi dasar kerja komputer dan perangkat digital hanya terdiri dari dua angka, yaitu 0 dan 1.",
+            ans: true,
+            exp: "Sistem bilangan biner (basis 2) menggunakan angka 0 (representasi kondisi mati/tegangan rendah) dan 1 (representasi kondisi hidup/tegangan tinggi)."
+        },
+        {
+            q: "Dalam dunia komputasi digital, satu byte setara dengan 8 bit.",
+            ans: true,
+            exp: "1 Bit (Binary Digit) adalah unit data terkecil (0 atau 1). Kumpulan 8 bit membentuk 1 Byte yang cukup untuk merepresentasikan satu karakter alfanumerik (seperti huruf 'A')."
+        },
+        {
+            q: "Sinyal digital lebih rentan mengalami kerusakan akibat derau (noise) dibandingkan sinyal analog saat ditransmisikan jarak jauh.",
+            ans: false,
+            exp: "Justru sebaliknya, sinyal digital jauh lebih tahan terhadap derau (noise) karena penerima hanya perlu membedakan dua level tegangan (0 atau 1) dan sinyal dapat diregenerasi ulang secara sempurna."
+        },
+        {
+            q: "Angka desimal 10 jika dikonversi ke dalam bentuk bilangan biner menjadi 1010.",
+            ans: true,
+            exp: "Perhitungan: (1 × 2³) + (0 × 2²) + (1 × 2¹) + (0 × 2⁰) = 8 + 0 + 2 + 0 = 10."
+        },
+        {
+            q: "Proses mengubah sinyal analog menjadi sinyal digital disebut sebagai proses modulasi.",
+            ans: false,
+            exp: "Proses mengubah sinyal analog menjadi sinyal digital dilakukan oleh ADC (Analog-to-Digital Converter) melalui tahapan sampling, kuantisasi, dan pengkodean (encoding)."
+        },
+        {
+            q: "Serat optik (fiber optic) mentransmisikan data digital dalam bentuk pulsa-pulsa cahaya dengan memanfaatkan prinsip pemantulan sempurna.",
+            ans: true,
+            exp: "Serat optik menggunakan inti kaca/plastik sangat murni untuk memandu gelombang cahaya melalui fenomena pemantulan internal total (total internal reflection)."
+        },
+        {
+            q: "Kecepatan transmisi data dalam kabel serat optik jauh lebih lambat dibandingkan kabel tembaga konvensional (UTP).",
+            ans: false,
+            exp: "Serat optik memiliki bandwidth yang jauh lebih besar dan kecepatan mendekati kecepatan cahaya dalam medium kaca, sehingga jauh lebih cepat daripada kabel tembaga."
+        },
+        {
+            q: "Gerbang logika AND akan menghasilkan keluaran (output) bernilai 1 hanya jika semua masukannya (input) bernilai 1.",
+            ans: true,
+            exp: "Gerbang AND bekerja seperti perkalian logika: 1 · 1 = 1, sedangkan jika ada salah satu input bernilai 0, maka output-nya pasti 0."
+        },
+        {
+            q: "Gerbang logika NOT berfungsi membalikkan keadaan logika masukan; jika input bernilai 1 maka output bernilai 0.",
+            ans: true,
+            exp: "Gerbang NOT sering disebut sebagai inverter (pembalik) karena keluaran selalu berlawanan dengan masukannya."
+        },
+        {
+            q: "Hard Disk Drive (HDD) menyimpan data secara digital menggunakan sel-sel memori flash semikonduktor tanpa komponen bergerak.",
+            ans: false,
+            exp: "Pernyataan tersebut adalah ciri dari SSD (Solid State Drive). HDD menggunakan piringan cakram magnetik yang berputar secara mekanis."
+        },
+        {
+            q: "Solid State Drive (SSD) memiliki kecepatan baca-tulis data yang lebih tinggi dan lebih tahan guncangan dibandingkan HDD.",
+            ans: true,
+            exp: "Karena tidak memiliki komponen mekanis yang bergerak (piringan berputar), SSD mengakses data secara elektronik jauh lebih cepat dan tahan terhadap benturan fisik."
+        },
+        {
+            q: "Komputasi awan (Cloud Computing) memungkinkan pengguna menyimpan dan mengakses data melalui jaringan internet tanpa harus menyimpannya di memori lokal perangkat.",
+            ans: true,
+            exp: "Cloud computing memanfaatkan server jarak jauh yang terhubung ke internet (seperti Google Drive, iCloud) untuk penyimpanan dan pemrosesan data."
+        },
+        {
+            q: "Gelombang elektromagnetik yang umum digunakan dalam komunikasi nirkabel seperti Wi-Fi dan Bluetooth adalah gelombang mikro (microwave) dan gelombang radio.",
+            ans: true,
+            exp: "Wi-Fi (2,4 GHz dan 5 GHz) serta Bluetooth (2,4 GHz) beroperasi pada spektrum gelombang radio frekuensi tinggi / gelombang mikro."
+        },
+        {
+            q: "Kapasitas penyimpanan 1 Megabyte (MB) dalam sistem biner (IEC) setara dengan 1.024 Kilobyte (KB).",
+            ans: true,
+            exp: "Dalam standar komputasi biner, kelipatan unit memori menggunakan basis 2¹⁰ = 1.024 (1 KB = 1.024 B, 1 MB = 1.024 KB)."
+        },
+        {
+            q: "Dalam komunikasi telepon seluler, menara pemancar yang membagi wilayah cakupan menjadi area-area kecil disebut BTS (Base Transceiver Station).",
+            ans: true,
+            exp: "BTS berfungsi sebagai jembatan penghubung sinyal gelombang radio antara perangkat seluler pengguna dengan jaringan operator."
+        },
+        {
+            q: "Teknologi 5G memiliki latensi (waktu tunda) yang jauh lebih tinggi dibandingkan teknologi 4G LTE.",
+            ans: false,
+            exp: "Salah satu keunggulan utama 5G adalah latensi yang sangat rendah (bisa mencapai 1 milidetik), sehingga respons komunikasi jauh lebih instan dibandingkan 4G."
+        },
+        {
+            q: "Enkripsi data adalah proses mengubah informasi asli (plaintext) menjadi kode rahasia (ciphertext) untuk menjaga keamanan saat transmisi digital.",
+            ans: true,
+            exp: "Enkripsi melindungi kerahasiaan data digital agar tidak dapat dibaca oleh pihak yang tidak memiliki kunci dekripsi."
+        },
+        {
+            q: "Internet of Things (IoT) adalah konsep di mana benda-benda fisik di sekitar kita dilengkapi sensor dan perangkat lunak untuk bertukar data melalui internet.",
+            ans: true,
+            exp: "Contoh penerapan IoT adalah lampu pintar, jam tangan pintar (smartwatch), dan sensor suhu ruangan yang dapat dikendalikan dari jarak jauh via internet."
+        },
+        {
+            q: "Piringan cakram seperti CD dan DVD membaca data digital menggunakan prinsip induksi elektromagnetik.",
+            ans: false,
+            exp: "CD, DVD, dan Blu-ray adalah media penyimpanan optik yang dibaca dan ditulis menggunakan pantulan sinar laser."
+        },
+        {
+            q: "Semakin tinggi frekuensi sampling (sampling rate) saat mengubah suara analog menjadi audio digital, maka semakin akurat kualitas suara yang dihasilkan.",
+            ans: true,
+            exp: "Frekuensi sampling yang tinggi mengambil lebih banyak sampel gelombang suara per detik, sehingga bentuk gelombang digital semakin mendekati suara aslinya."
+        },
+        {
+            q: "Satelit komunikasi geostasioner tampak selalu berada di atas titik yang sama di permukaan bumi karena periode orbitnya sama dengan periode rotasi bumi.",
+            ans: true,
+            exp: "Satelit geostasioner mengorbit pada ketinggian sekitar 35.786 km di atas khatulistiwa dengan periode 24 jam, sehingga posisinya relatif tetap terhadap pengamat di Bumi."
+        },
+        {
+            q: "Bilangan biner 1111 jika diubah menjadi bilangan desimal bernilai 16.",
+            ans: false,
+            exp: "Perhitungan: (1 × 2³) + (1 × 2²) + (1 × 2¹) + (1 × 2⁰) = 8 + 4 + 2 + 1 = 15."
+        },
+        {
+            q: "Sinyal digital dapat diregenerasi menggunakan alat yang disebut repeater tanpa ikut memperkuat derau (noise) yang menumpanginya.",
+            ans: true,
+            exp: "Repeater digital membaca pola 0 dan 1 yang masuk lalu membangkitkan ulang pulsa persegi yang baru dan bersih dari gangguan derau."
+        },
+        {
+            q: "Bandwidth dalam jaringan digital mengacu pada jumlah maksimum data yang dapat ditransmisikan melalui suatu saluran dalam satuan waktu tertentu (misal Mbps).",
+            ans: true,
+            exp: "Bandwidth sering dianalogikan sebagai lebar jalan raya; semakin besar bandwidth (dalam bps/Mbps/Gbps), semakin banyak data yang bisa lewat secara bersamaan."
+        },
+        {
+            q: "Gerbang logika OR akan menghasilkan keluaran bernilai 0 jika salah satu masukannya bernilai 1 dan masukan lainnya bernilai 0.",
+            ans: false,
+            exp: "Gerbang OR menghasilkan keluaran bernilai 1 apabila SALAH SATU atau semua masukannya bernilai 1. Keluaran bernilai 0 hanya jika semua masukan bernilai 0."
+        },
+        {
+            q: "Komponen semikonduktor utama yang berperan sebagai saklar elektronik super cepat dalam mikroprosesor modern adalah transistor.",
+            ans: true,
+            exp: "Miliaran transistor mikroskopis di dalam chip prosesor bekerja menyala dan mati (1 dan 0) jutaan hingga miliaran kali per detik untuk memproses instruksi."
+        },
+        {
+            q: "Kamera digital menggunakan sensor CCD atau CMOS untuk mengubah foton cahaya menjadi muatan listrik yang kemudian diproses menjadi data piksel digital.",
+            ans: true,
+            exp: "Sensor CCD (Charge-Coupled Device) dan CMOS memanfaatkan efek fotolistrik untuk menangkap intensitas cahaya dan warna pada setiap piksel."
+        },
+        {
+            q: "Data digital lebih sulit untuk digandakan (disalin) tanpa penurunan kualitas dibandingkan pita kaset analog.",
+            ans: false,
+            exp: "Salah satu keunggulan utama data digital adalah dapat digandakan berkali-kali dengan hasil salinan yang 100% identik tanpa ada penurunan kualitas sedikit pun."
+        },
+        {
+            q: "Jejak digital (digital footprint) adalah rekaman data aktivitas seseorang saat menggunakan internet yang dapat bersifat permanen.",
+            ans: true,
+            exp: "Setiap unggahan, pencarian, riwayat kunjungan situs, dan interaksi daring meninggalkan jejak data yang tersimpan di server."
+        }
+    ];
+
+    const container = document.getElementById('questions-container');
+
+    // Render 30 soal ke halaman
+    quizData.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        card.id = `card-${index}`;
+
+        card.innerHTML = `
+            <div class="question-header">
+                <span class="q-num">${index + 1}</span>
+                <span>${item.q}</span>
+            </div>
+            <div class="options">
+                <label class="option-label">
+                    <input type="radio" name="q${index}" value="true" required> BENAR
+                </label>
+                <label class="option-label">
+                    <input type="radio" name="q${index}" value="false" required> SALAH
+                </label>
+            </div>
+            <div class="explanation" id="exp-${index}"></div>
+        `;
+        container.appendChild(card);
+    });
+
+    // Proses saat form dikirim
+    document.getElementById('quiz-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const nama = document.getElementById('nama').value.trim();
+        const kelas = document.getElementById('kelas').value.trim();
+        const submitBtn = document.getElementById('submit-btn');
+
+        let correctCount = 0;
+        let detailJawaban = [];
+
+        quizData.forEach((item, index) => {
+            const selected = document.querySelector(`input[name="q${index}"]:checked`);
+            const userAns = selected.value === 'true';
+            const isCorrect = userAns === item.ans;
+
+            if (isCorrect) correctCount++;
+
+            // Tampilkan pembahasan pada masing-masing soal
+            const expBox = document.getElementById(`exp-${index}`);
+            const kunciText = item.ans ? "BENAR" : "SALAH";
+            const userText = userAns ? "BENAR" : "SALAH";
+
+            expBox.className = `explanation ${isCorrect ? 'correct' : 'incorrect'}`;
+            expBox.innerHTML = `
+                <strong>${isCorrect ? '✓ Jawaban Anda Tepat!' : '✗ Jawaban Anda Kurang Tepat.'}</strong><br>
+                Kunci Jawaban: <b>${kunciText}</b> (Anda memilih: ${userText})<br>
+                <em>Penjelasan:</em> ${item.exp}
+            `;
+
+            // Kunci pilihan radio agar tidak diubah setelah submit
+            document.querySelectorAll(`input[name="q${index}"]`).forEach(radio => radio.disabled = true);
+
+            detailJawaban.push(`No.${index + 1}: ${userText} (${isCorrect ? 'Benar' : 'Salah'})`);
+        });
+
+        const score = ((correctCount / quizData.length) * 100).toFixed(1);
+
+        // Tampilkan kotak hasil di bagian atas
+        const resultBox = document.getElementById('result-box');
+        resultBox.style.display = 'block';
+        document.getElementById('student-summary').innerText = `Nama: ${nama} | Kelas: ${kelas}`;
+        document.getElementById('final-score').innerText = `${score} / 100`;
+        document.getElementById('correct-count').innerText = `Menjawab benar ${correctCount} dari ${quizData.length} soal.`;
+
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Jawaban Telah Dikirim";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // Kirim hasil ke email melalui Formspree
+        const emailStatus = document.getElementById('email-status');
+
+        if (FORMSPREE_URL === "GANTI_DENGAN_ENDPOINT_FORMSPREE_ANDA" || !FORMSPREE_URL.startsWith("http")) {
+            emailStatus.style.backgroundColor = "#fef08a";
+            emailStatus.style.color = "#854d0e";
+            emailStatus.innerText = "Catatan: URL Formspree belum diatur oleh guru, sehingga nilai hanya tampil di layar ini.";
+            return;
+        }
+
+        try {
+            const response = await fetch(FORMSPREE_URL, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    _subject: `Nilai Asesmen Fisika: ${nama} (${kelas}) - Skor: ${score}`,
+                    Nama_Siswa: nama,
+                    Kelas: kelas,
+                    Skor_Akhir: `${score} / 100`,
+                    Jumlah_Benar: `${correctCount} dari 30 soal`,
+                    Rincian_Jawaban: detailJawaban.join(" | ")
+                })
+            });
+
+            if (response.ok) {
+                emailStatus.style.backgroundColor = "#dcfce7";
+                emailStatus.style.color = "#166534";
+                emailStatus.innerText = "✓ Hasil nilai dan rincian jawaban berhasil terkirim ke email guru!";
+            } else {
+                throw new Error("Gagal mengirim");
+            }
+        } catch (error) {
+            emailStatus.style.backgroundColor = "#fee2e2";
+            emailStatus.style.color = "#991b1b";
+            emailStatus.innerText = "⚠ Gagal mengirim otomatis ke email. Silakan tangkap layar (screenshot) nilai ini untuk dilaporkan ke guru.";
+        }
+    });
+</script>
+
+</body>
+</html>
